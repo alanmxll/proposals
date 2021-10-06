@@ -45,5 +45,36 @@ defmodule Core.ProposalTest do
       assert Proposal.valid?(invalid_high_value_proposal) == false
       assert Proposal.valid?(valid_proposal) == true
     end
+
+    test "loan should be paid between 24 and 180 months" do
+      invalid_smaller_number_of_monthly_installments = %Proposal{
+        id: 1,
+        loan_value: 40_000,
+        number_of_monthly_installments: 23
+      }
+
+      invalid_higher_number_of_monthly_installments = %Proposal{
+        id: 1,
+        loan_value: 40_000,
+        number_of_monthly_installments: 181
+      }
+
+      valid_proposal_minimum_number_of_monthly_installments = %Proposal{
+        id: 1,
+        loan_value: 40_000,
+        number_of_monthly_installments: 24
+      }
+
+      valid_proposal_maximum_number_of_monthly_installments = %Proposal{
+        id: 1,
+        loan_value: 40_000,
+        number_of_monthly_installments: 180
+      }
+
+      assert Proposal.valid?(invalid_smaller_number_of_monthly_installments) == false
+      assert Proposal.valid?(invalid_higher_number_of_monthly_installments) == false
+      assert Proposal.valid?(valid_proposal_minimum_number_of_monthly_installments) == true
+      assert Proposal.valid?(valid_proposal_maximum_number_of_monthly_installments) == true
+    end
   end
 end
