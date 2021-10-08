@@ -5,6 +5,7 @@ defmodule Core.ProposalTest do
 
   @fields %{id: 1, loan_value: 35_000, number_of_monthly_installments: 120}
   @proponent_fields %{id: 1, name: "Alan", age: 28, monthly_income: 4_000, main: false}
+  @main_proponent_fields %{id: 1, name: "Alan", age: 28, monthly_income: 4_000, main: true}
 
   def base_proposal(params \\ %{}) do
     new_params =
@@ -39,6 +40,15 @@ defmodule Core.ProposalTest do
     new_params =
       params
       |> Enum.into(@proponent_fields)
+
+    proponent = Map.merge(%Proponent{}, new_params)
+    %{proposal | proponents: [proponent | proposal.proponents]}
+  end
+
+  def add_main_proponent(proposal, params \\ %{}) do
+    new_params =
+      params
+      |> Enum.into(@main_proponent_fields)
 
     proponent = Map.merge(%Proponent{}, new_params)
     %{proposal | proponents: [proponent | proposal.proponents]}
@@ -93,11 +103,29 @@ defmodule Core.ProposalTest do
     end
 
     test "loan should have at least 2 proponents" do
-      invalid_proposal = proposal_without_proponents()
+      invalid_proposal_no_proponents = proposal_without_proponents()
       valid_proposal = valid_proposal()
 
       assert Proposal.valid?(valid_proposal) == true
-      refute Proposal.valid?(invalid_proposal) == true
+      refute Proposal.valid?(invalid_proposal_no_proponents) == true
+    end
+
+    test "should one proponent be the main one" do
+      invalid_proposal_no_main_proponent =
+        proposal_without_proponents()
+        |> add_proponent()
+        |> add_proponent()
+
+      invalid_proposal_more_than_one_main_proponent =
+        proposal_without_proponents()
+        |> add_main_proponent()
+        |> add_main_proponent()
+
+      valid_proposal = valid_proposal()
+
+      assert Proposal.valid?(valid_proposal) == true
+      refute Proposal.valid?(invalid_proposal_no_main_proponent) == true
+      refute Proposal.valid?(invalid_proposal_more_than_one_main_proponent) == true
     end
   end
 end
