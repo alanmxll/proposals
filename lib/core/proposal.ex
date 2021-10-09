@@ -1,7 +1,7 @@
 defmodule Core.Proposal do
   defstruct [:id, :loan_value, :number_of_monthly_installments, proponents: [], warranties: []]
 
-  alias Core.Validator
+  alias Core.{Proponent, Validator}
 
   def new(fields) do
     struct!(__MODULE__, fields)
@@ -14,6 +14,7 @@ defmodule Core.Proposal do
     |> evaluate(&valid_number_of_monthly_installments?/1)
     |> evaluate(&has_at_least_two_proponents?/1)
     |> evaluate(&has_exactly_one_main_proponent?/1)
+    |> evaluate(&has_all_proponents_older_than_or_equal_to_18?/1)
     |> result()
   end
 
@@ -48,5 +49,10 @@ defmodule Core.Proposal do
       |> Enum.count(&(&1.main == true))
 
     number_of_main_proponents == 1
+  end
+
+  def has_all_proponents_older_than_or_equal_to_18?(proposal) do
+    proposal.proponents
+    |> Enum.all?(&Proponent.valid?(&1))
   end
 end

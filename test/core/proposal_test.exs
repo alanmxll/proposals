@@ -127,5 +127,17 @@ defmodule Core.ProposalTest do
       refute Proposal.valid?(invalid_proposal_no_main_proponent) == true
       refute Proposal.valid?(invalid_proposal_more_than_one_main_proponent) == true
     end
+
+    test "all proponents need to be older than or equal to 18" do
+      valid_proposal = valid_proposal()
+
+      invalid_proposal_with_one_proponent_less_than_18 =
+        proposal_without_proponents()
+        |> add_proponent(%{age: 17})
+        |> add_main_proponent()
+
+      assert Proposal.valid?(valid_proposal) == true
+      refute Proposal.valid?(invalid_proposal_with_one_proponent_less_than_18) == true
+    end
   end
 end

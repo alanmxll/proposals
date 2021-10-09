@@ -4,4 +4,8 @@ defmodule Core.Proponent do
   def new(fields) do
     struct!(__MODULE__, fields)
   end
+
+  def valid?(proponent) do
+    proponent.age >= 18
+  end
 end

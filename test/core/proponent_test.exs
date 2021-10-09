@@ -18,4 +18,14 @@ defmodule Core.ProponentTest do
       assert base_proponent() == Proponent.new(@fields)
     end
   end
+
+  describe "valid?/1" do
+    test "proponent if it is older than or equal to 18" do
+      valid_proponent = base_proponent()
+      less_than_18_proponent = base_proponent(%{age: 17})
+
+      assert Proponent.valid?(valid_proponent) == true
+      refute Proponent.valid?(less_than_18_proponent) == true
+    end
+  end
 end
