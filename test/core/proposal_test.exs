@@ -97,5 +97,27 @@ defmodule Core.ProposalTest do
       assert Proposal.valid?(valid_proposal) == true
       refute Proposal.valid?(proposal_without_warranty) == true
     end
+
+    test "the sum of all warranties should be bigger than double of the loan value" do
+      valid_proposal = valid_proposal()
+
+      valid_proposal_with_one_warranty =
+        proposal_without_warranties()
+        |> add_warranty(%{id: 10, value: 71_000, province: "CE"})
+
+      valid_proposal_with_two_warranties =
+        proposal_without_warranties()
+        |> add_warranty(%{id: 10, value: 35_000, province: "RN"})
+        |> add_warranty(%{id: 10, value: 35_000, province: "RJ"})
+
+      invalid_proposal_with_warranty =
+        proposal_without_warranties()
+        |> add_warranty(%{id: 10, value: 69_000, province: "RN"})
+
+      assert Proposal.valid?(valid_proposal) == true
+      assert Proposal.valid?(valid_proposal_with_one_warranty) == true
+      assert Proposal.valid?(valid_proposal_with_two_warranties) == true
+      refute Proposal.valid?(invalid_proposal_with_warranty) == true
+    end
   end
 end

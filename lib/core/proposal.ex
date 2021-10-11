@@ -16,6 +16,7 @@ defmodule Core.Proposal do
     |> evaluate(&has_exactly_one_main_proponent?/1)
     |> evaluate(&has_all_proponents_older_than_or_equal_to_18?/1)
     |> evaluate(&has_at_least_one_warranty?/1)
+    |> evaluate(&warranty_values_double_or_more_than_loan_value?/1)
     |> result()
   end
 
@@ -59,5 +60,14 @@ defmodule Core.Proposal do
 
   def has_at_least_one_warranty?(proposal) do
     Enum.any?(proposal.warranties)
+  end
+
+  def warranty_values_double_or_more_than_loan_value?(proposal) do
+    sum_all_warranty_values =
+      proposal.warranties
+      |> Enum.map(& &1.value)
+      |> Enum.sum()
+
+    sum_all_warranty_values >= proposal.loan_value * 2
   end
 end
