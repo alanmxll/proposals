@@ -15,6 +15,7 @@ defmodule Core.Proposal do
     |> evaluate(&has_at_least_two_proponents?/1)
     |> evaluate(&has_exactly_one_main_proponent?/1)
     |> evaluate(&has_all_proponents_older_than_or_equal_to_18?/1)
+    |> evaluate(&has_at_least_one_warranty?/1)
     |> result()
   end
 
@@ -54,5 +55,9 @@ defmodule Core.Proposal do
   def has_all_proponents_older_than_or_equal_to_18?(proposal) do
     proposal.proponents
     |> Enum.all?(&Proponent.valid?(&1))
+  end
+
+  def has_at_least_one_warranty?(proposal) do
+    Enum.any?(proposal.warranties)
   end
 end

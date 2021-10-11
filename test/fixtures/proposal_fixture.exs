@@ -17,9 +17,9 @@ defmodule Fixtures.ProposalFixture do
     proposal = base_proposal(params)
 
     proponents = default_proponents()
-    # TODO: need to add default warranties
+    warranties = default_warranties()
 
-    %{proposal | proponents: proponents}
+    %{proposal | proponents: proponents, warranties: warranties}
   end
 
   def default_proponents() do
@@ -29,9 +29,20 @@ defmodule Fixtures.ProposalFixture do
     ]
   end
 
+  def default_warranties() do
+    [
+      %Warranty{value: 90_000, province: "CE"}
+    ]
+  end
+
   def proposal_without_proponents(params \\ %{}) do
     proposal = base_proposal(params)
-    %{proposal | proponents: []}
+    %{proposal | proponents: [], warranties: default_warranties()}
+  end
+
+  def proposal_without_warranties(params \\ %{}) do
+    proposal = base_proposal(params)
+    %{proposal | proponents: default_proponents(), warranties: []}
   end
 
   def add_proponent(proposal, params \\ %{}) do

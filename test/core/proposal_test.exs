@@ -89,5 +89,13 @@ defmodule Core.ProposalTest do
       assert Proposal.valid?(valid_proposal) == true
       refute Proposal.valid?(invalid_proposal_with_one_proponent_less_than_18) == true
     end
+
+    test "proposal needs to have at least one warranty" do
+      valid_proposal = valid_proposal()
+      proposal_without_warranty = proposal_without_warranties()
+
+      assert Proposal.valid?(valid_proposal) == true
+      refute Proposal.valid?(proposal_without_warranty) == true
+    end
   end
 end
