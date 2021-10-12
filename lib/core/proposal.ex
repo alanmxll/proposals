@@ -1,7 +1,7 @@
 defmodule Core.Proposal do
   defstruct [:id, :loan_value, :number_of_monthly_installments, proponents: [], warranties: []]
 
-  alias Core.{Proponent, Validator}
+  alias Core.{Proponent, Validator, Warranty}
 
   def new(fields) do
     struct!(__MODULE__, fields)
@@ -17,6 +17,7 @@ defmodule Core.Proposal do
     |> evaluate(&has_all_proponents_older_than_or_equal_to_18?/1)
     |> evaluate(&has_at_least_one_warranty?/1)
     |> evaluate(&warranty_values_double_or_more_than_loan_value?/1)
+    |> evaluate(&warranties_from_valid_province?/1)
     |> result()
   end
 
@@ -69,5 +70,10 @@ defmodule Core.Proposal do
       |> Enum.sum()
 
     sum_all_warranty_values >= proposal.loan_value * 2
+  end
+
+  def warranties_from_valid_province?(proposal) do
+    proposal.warranties
+    |> Enum.all?(&Warranty.valid?(&1))
   end
 end

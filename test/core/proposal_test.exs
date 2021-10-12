@@ -119,5 +119,23 @@ defmodule Core.ProposalTest do
       assert Proposal.valid?(valid_proposal_with_two_warranties) == true
       refute Proposal.valid?(invalid_proposal_with_warranty) == true
     end
+
+    test "PR, SC and RS should not be elegible provinces for warranties" do
+      valid_proposal = valid_proposal()
+
+      proposal_with_warranty_from_SC =
+        proposal_without_warranties() |> add_warranty(%{id: 10, value: 71_000, province: "SC"})
+
+      proposal_with_warranty_from_PR =
+        proposal_without_warranties() |> add_warranty(%{id: 10, value: 71_000, province: "PR"})
+
+      proposal_with_warranty_from_RS =
+        proposal_without_warranties() |> add_warranty(%{id: 10, value: 71_000, province: "RS"})
+
+      assert Proposal.valid?(valid_proposal) == true
+      refute Proposal.valid?(proposal_with_warranty_from_SC) == true
+      refute Proposal.valid?(proposal_with_warranty_from_PR) == true
+      refute Proposal.valid?(proposal_with_warranty_from_RS) == true
+    end
   end
 end
