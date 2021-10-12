@@ -138,4 +138,60 @@ defmodule Core.ProposalTest do
       refute Proposal.valid?(proposal_with_warranty_from_RS) == true
     end
   end
+
+  describe "Main proponent monthly income should follow those rules" do
+    setup [:create_proposal_with_proponent]
+
+    test "valid?/1 should be 4 times higher than the loan installment for 18 to 24 years old", %{
+      proposal: proposal
+    } do
+      valid_proposal = proposal |> add_main_proponent(%{age: 18, monthly_income: 10_000})
+      other_valid_proposal = proposal |> add_main_proponent(%{age: 24, monthly_income: 10_000})
+
+      invalid_monthly_income_proposal =
+        proposal |> add_main_proponent(%{age: 18, monthly_income: 9_000})
+
+      assert Proposal.valid?(valid_proposal) == true
+      assert Proposal.valid?(other_valid_proposal) == true
+      refute Proposal.valid?(invalid_monthly_income_proposal) == true
+    end
+
+    test "valid?/1 should be 3 times higher than the loan installment for 25 to 50 years old", %{
+      proposal: proposal
+    } do
+      valid_proposal = proposal |> add_main_proponent(%{age: 25, monthly_income: 8_000})
+      other_valid_proposal = proposal |> add_main_proponent(%{age: 50, monthly_income: 8_000})
+
+      invalid_monthly_income_proposal =
+        proposal |> add_main_proponent(%{age: 50, monthly_income: 7_400})
+
+      assert Proposal.valid?(valid_proposal) == true
+      assert Proposal.valid?(other_valid_proposal) == true
+      refute Proposal.valid?(invalid_monthly_income_proposal) == true
+    end
+
+    test "valid?/1 should be 2 times higher than the loan installment for above 50 years old", %{
+      proposal: proposal
+    } do
+      valid_proposal = proposal |> add_main_proponent(%{age: 51, monthly_income: 5_000})
+
+      invalid_monthly_income_proposal =
+        proposal |> add_main_proponent(%{age: 51, monthly_income: 4_500})
+
+      assert Proposal.valid?(valid_proposal) == true
+      refute Proposal.valid?(invalid_monthly_income_proposal) == true
+    end
+  end
+
+  defp create_proposal_with_proponent(context) do
+    proposal =
+      proposal_without_proponents(%{
+        loan_value: 100_000,
+        number_of_monthly_installments: 40
+      })
+      |> add_proponent()
+      |> add_warranty(%{id: 100, value: 200_000, province: "CE"})
+
+    {:ok, Map.put(context, :proposal, proposal)}
+  end
 end

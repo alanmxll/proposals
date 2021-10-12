@@ -18,6 +18,7 @@ defmodule Core.Proposal do
     |> evaluate(&has_at_least_one_warranty?/1)
     |> evaluate(&warranty_values_double_or_more_than_loan_value?/1)
     |> evaluate(&warranties_from_valid_province?/1)
+    |> evaluate(&has_monthly_income_accordingly_to_the_age?/1)
     |> result()
   end
 
@@ -75,5 +76,31 @@ defmodule Core.Proposal do
   def warranties_from_valid_province?(proposal) do
     proposal.warranties
     |> Enum.all?(&Warranty.valid?(&1))
+  end
+
+  def has_monthly_income_accordingly_to_the_age?(proposal) do
+    main_proponent = Enum.find(proposal.proponents, &(&1.main == true))
+    monthly_installment_value = monthly_installment_value(proposal)
+
+    has_valid_income?(main_proponent, monthly_installment_value)
+  end
+
+  defp has_valid_income?(proponent, monthly_installment_value)
+       when proponent.age >= 18 and proponent.age <= 24 do
+    proponent.monthly_income >= monthly_installment_value * 4
+  end
+
+  defp has_valid_income?(proponent, monthly_installment_value)
+       when proponent.age > 24 and proponent.age <= 50 do
+    proponent.monthly_income >= monthly_installment_value * 3
+  end
+
+  defp has_valid_income?(proponent, monthly_installment_value)
+       when proponent.age > 50 do
+    proponent.monthly_income >= monthly_installment_value * 2
+  end
+
+  defp monthly_installment_value(proposal) do
+    proposal.loan_value / proposal.number_of_monthly_installments
   end
 end
